@@ -256,7 +256,7 @@ function register_omise_creditcard() {
 				$data['customer'] = $omise_customer_id;
 				$data['card']     = $card_id;
 			} else {
-				$data['card'] = $token;
+				$data['source'] = $token;
 			}
 
 			// Set capture status (otherwise, use API's default behaviour)
@@ -644,7 +644,7 @@ function register_omise_creditcard() {
 		 */
 		public function omise_scripts() {
 			if ( is_checkout() && $this->is_available() ) {
-				wp_enqueue_script( 'omise-js', 'https://cdn.omise.co/omise.js', array( 'jquery' ), OMISE_WOOCOMMERCE_PLUGIN_VERSION, true );
+				wp_enqueue_script( 'omise-js', 'https://js.bongloy.com/v3', array( 'jquery' ), OMISE_WOOCOMMERCE_PLUGIN_VERSION, true );
 				wp_enqueue_script( 'omise-util', plugins_url( '../../assets/javascripts/omise-util.js', __FILE__ ), array( 'omise-js' ), OMISE_WOOCOMMERCE_PLUGIN_VERSION, true );
 				wp_enqueue_script( 'omise-payment-form-handler', plugins_url( '../../assets/javascripts/omise-payment-form-handler.js', __FILE__ ), array( 'omise-js', 'omise-util' ), OMISE_WOOCOMMERCE_PLUGIN_VERSION, true );
 				wp_localize_script( 'omise-payment-form-handler', 'omise_params', array( 'key' => $this->public_key() ) );

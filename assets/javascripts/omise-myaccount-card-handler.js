@@ -81,10 +81,10 @@
 			return false;
 		}else{
 			hideError();
-			if(Omise){
-				Omise.setPublicKey(omise_params.key);
-				Omise.createToken("card", card, function (statusCode, response) {
-				    if (statusCode == 200) {
+			if(Bongloy){
+				Bongloy.setPublicKey(omise_params.key);
+				Bongloy.createToken("card", card, function (statusCode, response) {
+				    if (statusCode == 201) {
 				    	$( '#omise_card_name' ).val("");
 				    	$( '#omise_card_number' ).val("");
 				    	$( '#omise_card_expiration_month' ).val("");
