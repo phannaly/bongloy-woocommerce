@@ -17,6 +17,7 @@ If the version you are currently using has not been listed, you can try installi
 - [First Time Setup](https://github.com/omise/omise-woocommerce/tree/improve-readme#first-time-setup)
   - [Connect your store with your Omise account](https://github.com/omise/omise-woocommerce/tree/improve-readme#connect-your-store-with-your-omise-account)
   - [Enable payment methods](https://github.com/omise/omise-woocommerce/tree/improve-readme#enable-payment-methods)
+  - [Bongloy Integration](https://github.com/omise/omise-woocommerce/tree/improve-readme#bongloy-integration)
 
 ...
 
@@ -81,6 +82,71 @@ Once done, those payment methods will be shown at the store's checkout page.
   ![screen shot 2560-07-26 at 8 13 55 pm](https://user-images.githubusercontent.com/2154669/28622536-030403e2-723f-11e7-8a93-a06e65e350d3.png)
 
 ...
+
+### Bongloy integration
+
+To integrate with Bongloy API, you just clone this repository to your plugins folder or use the original Omise WooCommerce and change some code such as:
+
+In file `assets/javascripts/omise-myaccount-card-handler.js`
+
+```js
+- if(Omise){
+-   Omise.setPublicKey(omise_params.key);
+-   Omise.createToken("card", card, function (statusCode, response) {
+-     if (statusCode == 200) {
++ if(Bongloy){
++   Bongloy.setPublicKey(omise_params.key);
++   Bongloy.createToken("card", card, function (statusCode, response) {
++     if (statusCode == 201) {
+```
+`assets/javascripts/omise-payment-form-handler.js`
+
+```js
+- if(Omise){
+-   Omise.setPublicKey(omise_params.key);
+-   Omise.createToken("card", card, function (statusCode, response) {
+-     if (statusCode == 200) {
++ if(Bongloy){
++   Bongloy.setPublicKey(omise_params.key);
++   Bongloy.createToken("card", card, function (statusCode, response) {
++     if (statusCode == 201) {
+```
+`includes/class-omise-wc-myaccount.php` line `58`
+
+```php
+- 'https://cdn.omise.co/omise.js',
++ 'https://js.bongloy.com/v3',
+```
+
+`includes/gateway/class-omise-payment-creditcard.php` line `259`
+
+```php
+- $data['card'] = $token;
++ $data['source'] = $token;
+```
+
+and line `647`
+
+```php
+- wp_enqueue_script( 'omise-js', 'https://cdn.omise.co/omise.js', array( 'jquery' ), OMISE_WOOCOMMERCE_PLUGIN_VERSION, true );
++ wp_enqueue_script( 'omise-js', 'https://js.bongloy.com/v3', array( 'jquery' ), OMISE_WOOCOMMERCE_PLUGIN_VERSION, true );
+```
+
+`includes/libraries/omise-php/lib/omise/res/OmiseApiResource.php` line `4`
+
+```php
+- define('OMISE_API_URL', 'https://api.omise.co/');
++ define('OMISE_API_URL', 'https://api.bongloy.com/v1/');
+```
+
+You can check full commit diff here [fbc1901](https://github.com/phannaly/bongloy-woocommerce/commit/fbc19014352e54a5d14d11695af26152084796da)
+
+If you face this problem
+```
+SSL certificate problem: unable to get local issuer certificate
+```
+You can download new certificate http://curl.haxx.se/ca/cacert.pem and replace it in
+`includes/libraries/omise-php/data/ca_certificates.pem`
 
 ### What's Next?
 
