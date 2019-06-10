@@ -21,9 +21,9 @@ function register_omise_creditcard() {
 
 			$this->id                 = 'omise';
 			$this->has_fields         = true;
-			$this->method_title       = __( 'Omise Credit / Debit Card', 'omise' );
+			$this->method_title       = __( 'UnionPay Credit / Debit Card', 'omise' );
 			$this->method_description = wp_kses(
-				__( 'Accept payment through <strong>Credit / Debit Card</strong> via Omise payment gateway.', 'omise' ),
+				__( 'Accept payment through <strong>UnionPay Credit / Debit Card</strong> via Bongloy payment gateway.', 'omise' ),
 				array(
 					'strong' => array()
 				)
@@ -58,7 +58,7 @@ function register_omise_creditcard() {
 					'enabled' => array(
 						'title'   => __( 'Enable/Disable', 'omise' ),
 						'type'    => 'checkbox',
-						'label'   => __( 'Enable Omise Credit / Debit Card Payment', 'omise' ),
+						'label'   => __( 'Enable UnionPay Credit / Debit Card Payment', 'omise' ),
 						'default' => 'no'
 					),
 
@@ -66,7 +66,7 @@ function register_omise_creditcard() {
 						'title'       => __( 'Title', 'omise' ),
 						'type'        => 'text',
 						'description' => __( 'This controls the title which the user sees during checkout.', 'omise' ),
-						'default'     => __( 'Credit / Debit Card', 'omise' )
+						'default'     => __( 'UnionPay Credit / Debit Card', 'omise' )
 					),
 
 					'description' => array(
@@ -91,51 +91,6 @@ function register_omise_creditcard() {
 							self::PAYMENT_ACTION_AUTHORIZE         => __( 'Manual Capture', 'omise' )
 						),
 						'desc_tip'    => true
-					),
-					'omise_3ds' => array(
-						'title'       => __( '3-D Secure payment', 'omise' ),
-						'type'        => 'checkbox',
-						'label'       => __( 'Enabling 3-D Secure payment means that buyer will be redirected to the 3-D Secure authorization page during the checkout process.', 'omise' ),
-						'description' => wp_kses(
-							__( 'Please be informed that you must contact Omise support team (support@omise.co) before enable or disable this option.<br/> (Japan-based accounts are not eligible for the service.)', 'omise' ),
-							array( 'br' => array() )
-						),
-						'default'     => 'no'
-					),
-					'accept_visa' => array(
-						'title'       => __( 'Supported card icons', 'omise' ),
-						'type'        => 'checkbox',
-						'label'       => Omise_Card_Image::get_visa_image(),
-						'css'         => Omise_Card_Image::get_css(),
-						'default'     => Omise_Card_Image::get_visa_default_display()
-					),
-					'accept_mastercard' => array(
-						'type'        => 'checkbox',
-						'label'       => Omise_Card_Image::get_mastercard_image(),
-						'css'         => Omise_Card_Image::get_css(),
-						'default'     => Omise_Card_Image::get_mastercard_default_display()
-					),
-					'accept_jcb' => array(
-						'type'        => 'checkbox',
-						'label'       => Omise_Card_Image::get_jcb_image(),
-						'css'         => Omise_Card_Image::get_css(),
-						'default'     => Omise_Card_Image::get_jcb_default_display()
-					),
-					'accept_diners' => array(
-						'type'        => 'checkbox',
-						'label'       => Omise_Card_Image::get_diners_image(),
-						'css'         => Omise_Card_Image::get_css(),
-						'default'     => Omise_Card_Image::get_diners_default_display()
-					),
-					'accept_amex' => array(
-						'type'        => 'checkbox',
-						'label'       => Omise_Card_Image::get_amex_image(),
-						'css'         => Omise_Card_Image::get_css(),
-						'default'     => Omise_Card_Image::get_amex_default_display(),
-						'description' => wp_kses(
-							__( 'This only controls the icons displayed on the checkout page.<br />It is not related to card processing on Omise payment gateway.', 'omise' ),
-							array( 'br' => array() )
-						)
 					)
 				)
 			);
