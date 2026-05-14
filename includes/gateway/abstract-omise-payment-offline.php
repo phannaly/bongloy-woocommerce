@@ -2,40 +2,68 @@
 
 defined( 'ABSPATH' ) || exit;
 
+if ( class_exists( 'Omise_Payment_Offline', false ) ) {
+    return;
+}
+
 require_once dirname( __FILE__ ) . '/class-omise-payment.php';
 
 /**
  * @since 4.0
  */
-abstract class Omise_Payment_Offline extends Omise_Payment {
-	/**
-	 * A string of Omise Source's type
-	 * (e.g. paynow or bill_payment_tesco_lotus).
-	 *
-	 * @var string
-	 */
-	protected $source_type;
+abstract class Omise_Payment_Offline extends Omise_Payment
+{
+	use Charge_Request_Builder;
 
 	protected $enabled_processing_notification = true;
+
+	public function __construct()
+	{
+		parent::__construct();
+	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function charge( $order_id, $order ) {
-		$total    = $order->get_total();
-		$currency = $order->get_currency();
-		$metadata = array_merge(
-			apply_filters( 'omise_charge_params_metadata', array(), $order ),
-			array( 'order_id' => $order_id ) // override order_id as a reference for webhook handlers.
+	public function process_payment( $order_id ) {
+		return $this->process_upa_checkout_session_payment( $order_id );
+	}
+
+	/**
+	 * Check whether the given order was placed through the UPA offline flow.
+	 *
+	 * @param WC_Order|null $order
+	 *
+	 * @return bool
+	 */
+	protected function is_upa_offline_order( $order ) {
+		if ( ! $order || ! is_object( $order ) || ! class_exists( 'Omise_UPA_Session_Service' ) ) {
+			return false;
+		}
+
+		$session_id = $order->get_meta( Omise_UPA_Session_Service::META_SESSION_ID );
+		if ( empty( $session_id ) ) {
+			return false;
+		}
+
+		$flow = $order->get_meta( Omise_UPA_Session_Service::META_FLOW );
+		if ( empty( $flow ) ) {
+			return true;
+		}
+
+		return Omise_UPA_Session_Service::FLOW_OFFLINE === $flow;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function charge( $order_id, $order )
+	{
+		$requestData = $this->build_charge_request(
+			$order_id, $order, $this->source_type
 		);
 
-		return OmiseCharge::create( array(
-			'amount'      => Omise_Money::to_subunit( $total, $currency ),
-			'currency'    => $currency,
-			'description' => apply_filters( 'omise_charge_params_description', 'WooCommerce Order id ' . $order_id, $order ),
-			'source'      => array( 'type' => $this->source_type ),
-			'metadata'    => $metadata
-		) );
+		return OmiseCharge::create($requestData);
 	}
 
 	/**
@@ -43,7 +71,7 @@ abstract class Omise_Payment_Offline extends Omise_Payment {
 	 */
 	public function result( $order_id, $order, $charge ) {
 		if ( self::STATUS_FAILED === $charge['status'] ) {
-			return $this->payment_failed( Omise()->translate( $charge['failure_message'] ) . ' (code: ' . $charge['failure_code'] . ')' );
+			return $this->payment_failed( $charge );
 		}
 
 		if ( self::STATUS_PENDING === $charge['status'] ) {
@@ -57,7 +85,7 @@ abstract class Omise_Payment_Offline extends Omise_Payment {
 			);
 		}
 
-		return $this->payment_failed(
+		return $this->payment_failed( null,
 			sprintf(
 				__( 'Please feel free to try submitting your order again, or contact our support team if you have any questions (Your temporary order id is \'%s\')', 'omise' ),
 				$order_id

@@ -4,12 +4,22 @@ label.omise-label-inline {
 	display: inline-block;
 }
 
-.omise-remember-card input,
-.omise-remember-card label {
-	display: inline-block;
+.omise-new-card-form {
+	display: flex;
+  	flex-direction: column;
+}
+
+.omise-form-child {
+	margin-top: auto;
+}
+
+.omise-remember-card {
+	margin-top: 0.5em;
+	margin-left: 0.2em;
 }
 
 .omise-customer-card-list {
+	list-style-type: none;
 	padding-bottom: .75em;
 	border-bottom: 1px solid #ddd;
 	box-shadow: 0 1px 1px #fff;
@@ -20,20 +30,21 @@ label.omise-label-inline {
 	display: inline-block;
 }
 
-fieldset.card-exists {
+fieldset.card-exists,
+.omise-new-card-form.card-exists {
 	display: none;
 }
 
-#new_card_info:checked ~ fieldset.card-exists {
-	display: block;
+#new_card_info:checked ~ fieldset.card-exists,
+#new_card_info:checked ~ .omise-new-card-form.card-exists {
+	display: flex;
 }
 
 /**
  * 1). Specific style
  * (usually designed specifically for only one purpose).
  */
-#payment .payment_methods li .payment_box fieldset#omise-form-installment,
-#payment .payment_methods li .payment_box fieldset#omise-form-internetbanking {
+#payment .payment_methods li .payment_box fieldset#omise-form-installment {
 	padding: 0;
 }
 
@@ -53,8 +64,12 @@ fieldset.card-exists {
 	line-height: 1;
 }
 
+#payment .payment_methods .Omise-Image {
+	vertical-align: middle;
+}
+
 /**
- * Omise Bill Payment Tesco
+ * Omise Bill Payment Lotus
  * CSS for the 'Thank You' (order-received) page.
  */
 .omise-konbini-details,
@@ -85,6 +100,7 @@ fieldset.card-exists {
  * Omise PayNow
  */
 .omise-paynow-details {
+	margin-top: 3em;
 	margin-bottom: 4em;
 	text-align: center;
 }
@@ -92,10 +108,12 @@ fieldset.card-exists {
 	margin: auto;
 }
 .omise-paynow-logo {
-	background: url('../images/paynow.png');
+	background: url('../images/paynow.svg');
+	background-position: center;
 	background-size: cover;
-	width: 200px;
-	height: 51px;
+	background-repeat: no-repeat;
+	width: 150px;
+	height: 80px;
 	margin: auto;
 }
 
@@ -109,9 +127,10 @@ fieldset.card-exists {
 
 .omise-paynow-payment-status .green-check {
 	background: url('../images/green-check.svg') no-repeat;
-	height: 150px;
-	width: 116px;
-	margin: auto;
+	background-size: contain;
+	background-position: center;
+	height: 50px;
+	margin: 10px auto;
 }
 
 /**
@@ -157,6 +176,11 @@ fieldset.card-exists {
 	font-size: 80%;
 }
 
+.omise-secondary-text.googlepay-selected {
+	color: #000;
+	font-size: 125%;
+}
+
 /**
  * 2.2). Components
  */
@@ -175,6 +199,7 @@ fieldset.card-exists {
  * 2.3). Form, bank list components
  */
 ul.omise-banks-list {
+	list-style-type: none;
 	margin: 0;
 }
 
@@ -190,6 +215,7 @@ ul.omise-banks-list {
 
 .omise-banks-list .item.mobile-banking {
 	padding-bottom: 0;
+	list-style-type: none;
 }
 
 .omise-banks-list .item.fpx:first-child {
@@ -237,19 +263,22 @@ ul.omise-banks-list {
 
 .omise-banks-list .bank-logo {
 	display: inline-block;
-	width: 32px;
-	height: 32px;
+	width: 40px;
+	height: 40px;
 	margin-top: 4px;
 	border-radius: 2px;
 	border: 4px solid #fff;
+	background-size: cover;
+	background-repeat: no-repeat;
 }
 
 .omise-banks-list .mobile-banking-logo {
 	display: inline-block;
 	background-size: cover;
-	width: 32px;
-	height: 32px;
-	margin: auto;
+	width: 40px;
+	height: 40px;
+	margin-bottom: 6px;
+	margin-left: 10px;
 	vertical-align: middle;
 }
 
@@ -265,6 +294,7 @@ ul.omise-banks-list {
 /** Media Quries **/
 @media all and (min-width: 375px) {
 	ul.omise-banks-list {
+		list-style-type: none;
 		margin: 0 0 0 1.75em;
 	}
 
@@ -278,11 +308,13 @@ ul.omise-banks-list {
 
 	.omise-banks-list .mobile-banking-label {
 		padding-left: 8px;
+		padding-bottom: 5px;
 	}
 }
 
 @media all and (min-width: 768px) {
 	ul.omise-banks-list {
+		list-style-type: none;
 		margin: 0;
 	}
 
@@ -299,6 +331,7 @@ ul.omise-banks-list {
 
 @media all and (min-width: 1024px) {
 	ul.omise-banks-list {
+		list-style-type: none;
 		margin: 0 0 0 1.75em;
 	}
 
@@ -325,176 +358,150 @@ ul.omise-banks-list {
 /**
  * 2.4). Bank logos
  */
-/** BAY **/
-.bank-logo.bay {
-	background: url('../images/bay.svg') #fec43b;
-	border-color: #fec43b;
-}
-
-/** BBL **/
-.bank-logo.bbl {
-	background: url('../images/bbl.svg') #1e4598;
-	border-color: #1e4598;
-}
-
-/** Citi **/
-.bank-logo.citi {
-	background: url('../images/citi.svg') #0b689d;
-	border-color: #0b689d;
-}
-
-/** First Choice **/
-.bank-logo.first_choice {
-	background: url('../images/firstchoice.svg') #007bc4;
-	border-color: #007bc4;
-}
-
-/** KBANK **/
-.bank-logo.kbank {
-	background: url('../images/kbank.svg') #fbfbfb;
-	border-color: #fbfbfb;
-}
-
-/** KTB **/
-.bank-logo.ktb {
-	background: url('../images/ktb.svg') #1ba5e1;
-	border-color: #1ba5e1;
-}
-
-/** KTC **/
-.bank-logo.ktc {
-	background: url('../images/ktc.svg') #fbfbfb;
-	border-color: #fbfbfb;
-}
-
-/** SCB **/
-.bank-logo.scb {
-	background: url('../images/scb.svg') #4e2e7f;
-	border-color: #4e2e7f;
-}
-
-/** TTB **/
-.bank-logo.ttb {
-	background: url('../images/ttb.svg') #fbfbfb;
-	border-color: #fbfbfb;
-}
-
-/** UOB **/
-.bank-logo.uob {
-	background: url('../images/uob.svg') #05377c;
-	border-color: #05377c;
-}
-
-/** MAYBANK **/
-.bank-logo.ezypay {
-	background: url('../images/maybank.svg') #ffcf00;
-	border-color: #ffcf00;
-}
 
 /**
- * mobile banking logo
+ * mobile banking logos
  */
-
-/** OCBC PAO **/
-.mobile-banking-logo.ocbc_pao {
-	background: url('../images/ocbc-pao.png');
-	background-size: cover;
-}
 
 /** KPLUS **/
 .mobile-banking-logo.kplus {
-	background: url('../images/kplus.png');
-	background-size: cover;
+	background-image: url('../images/kplus.svg');
 }
 
 /** SCB **/
 .mobile-banking-logo.scb {
-	background: url('../images/scb.svg') #4e2e7f;
-	background-size: cover;
-	border: 4px solid #4e2e7f;
+	background-image: url('../images/scb-easy.svg');
+}
+
+/** BAY **/
+.mobile-banking-logo.bay {
+	background-image: url('../images/kma.svg');
+}
+
+/** BBL **/
+.mobile-banking-logo.bbl {
+	background-image: url('../images/bbl.svg');
+}
+
+/** KTB **/
+.mobile-banking-logo.ktb {
+	background-image: url('../images/ktb.svg');
 }
 
 /**
-fpx bank logos
-**/
-.fpx-bank-logo.affin_test,.fpx-bank-logo.affin {
-	background: url('../images/fpx-affin.svg');
+ * fpx select & bank logos
+ */
+.fpx-select-bank {
+    position: relative;
 }
 
-.fpx-bank-logo.agro {
-	background: url('../images/fpx-agronet.svg');
+.fpx-select-bank:before {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    content: "";
+    pointer-events: none;
+    background: transparent;
+    background-repeat: no-repeat;
+    background-position-y: 5px;
 }
 
-.fpx-bank-logo.alliance {
-	background: url('../images/fpx-alliance.svg');
+
+.fpx-select-bank > select {
+    padding: 10px 50px;
+	width: 100%;
+    background-image:url(../images/fpx-unknown.svg);
+    background-repeat: no-repeat;
+    background-position-y: 50%;
+    background-position-x: 10px;
+    background-size: 25px;
+    cursor: pointer;
 }
 
-.fpx-bank-logo.ambank {
-	background: url('../images/fpx-ambank.svg');
+.fpx-select-bank > select.default {
+    background: none;
+	padding-left: 10px;
 }
 
-.fpx-bank-logo.islam {
-	background: url('../images/fpx-islam.svg');
+.fpx-select-bank > select.affin, select.affin_test {
+    background-image:url(../images/fpx-affin.svg);
 }
 
-.fpx-bank-logo.muamalat {
-	background: url('../images/fpx-muamalat.svg');
+.fpx-select-bank > select.agro {
+    background-image:url(../images/fpx-agronet.svg);
 }
 
-.fpx-bank-logo.rakyat {
-	background: url('../images/fpx-rakyat.svg');
+.fpx-select-bank > select.alliance {
+    background-image:url(../images/fpx-alliance.svg);
 }
 
-.fpx-bank-logo.bsn {
-	background: url('../images/fpx-bsn.svg');
+.fpx-select-bank > select.ambank {
+    background-image:url(../images/fpx-ambank.svg);
 }
 
-.fpx-bank-logo.cimb {
-	background: url('../images/fpx-cimb.svg');
+.fpx-select-bank > select.bsn {
+    background-image:url(../images/fpx-bsn.svg);
 }
 
-.fpx-bank-logo.citi {
-	background: url('../images/fpx-citi.svg');
+.fpx-select-bank > select.cimb {
+    background-image:url(../images/fpx-cimb.svg);
 }
 
-.fpx-bank-logo.hongleong {
-	background: url('../images/fpx-hongleong.svg');
+.fpx-select-bank > select.citi {
+    background-image:url(../images/fpx-citi.svg);
 }
 
-.fpx-bank-logo.hsbc {
-	background: url('../images/fpx-hsbc.svg');
+.fpx-select-bank > select.bocm {
+    background-image:url(../images/fpx-bocm.svg);
 }
 
-.fpx-bank-logo.public {
-	background: url('../images/fpx-publicbank.svg');
+.fpx-select-bank > select.hongleong {
+    background-image:url(../images/fpx-hongleong.svg);
 }
 
-.fpx-bank-logo.rhb {
-	background: url('../images/fpx-rhb.svg');
+.fpx-select-bank > select.hsbc {
+    background-image:url(../images/fpx-hsbc.svg);
 }
 
-.fpx-bank-logo.sbc_a,.fpx-bank-logo.sbc_b,.fpx-bank-logo.sbc_c {
-	background: url('../images/fpx-unknown.svg');
+.fpx-select-bank > select.islam {
+    background-image:url(../images/fpx-islam.svg);
 }
 
-.fpx-bank-logo.sc {
-	background: url('../images/fpx-sc.svg');
+.fpx-select-bank > select.kfh {
+    background-image:url(../images/fpx-kfh.svg);
 }
 
-.fpx-bank-logo.uob {
-	background: url('../images/fpx-uob.svg');
+.fpx-select-bank > select.maybank2e, select.maybank2u{
+    background-image:url(../images/fpx-maybank.svg);
 }
 
-.fpx-bank-logo.ocbc {
-	background: url('../images/fpx-ocbc.svg');
+.fpx-select-bank > select.muamalat {
+    background-image:url(../images/fpx-muamalat.svg);
 }
 
-.fpx-bank-logo.kfh {
-	background: url('../images/fpx-kfh.svg');
+.fpx-select-bank > select.ocbc {
+    background-image:url(../images/fpx-ocbc.svg);
 }
 
-.fpx-bank-logo.maybank2e,.fpx-bank-logo.maybank2u {
-	background: url('../images/fpx-maybank.svg');
+.fpx-select-bank > select.public {
+    background-image:url(../images/fpx-publicbank.svg);
+}
+
+.fpx-select-bank > select.rakyat {
+    background-image:url(../images/fpx-rakyat.svg);
+}
+
+.fpx-select-bank > select.rhb {
+    background-image:url(../images/fpx-rhb.svg);
+}
+
+.fpx-select-bank > select.sc {
+    background-image:url(../images/fpx-sc.svg);
+}
+
+.fpx-select-bank > select.uob {
+    background-image:url(../images/fpx-uob.svg);
 }
 
 .omise-offline {
@@ -512,3 +519,33 @@ line-height: 2;
 	margin-bottom:0px !important;
 }
 
+.fpx-terms-and-conditions-block {
+	margin-top: 10px;
+}
+
+
+.gpay-button {
+    background-origin: content-box;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    border: 0px;
+    border-radius: 4px;
+    box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 1px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+    cursor: pointer;
+    height: 40px;
+    min-height: 40px;
+    padding: 11px 24px;
+    width: 100%;
+	margin-bottom: 1rem;
+}
+
+.qr-alert-box {
+	padding: 15px;
+	margin: 20px 0;
+	border: 1px solid black;
+}
+
+.align-left {
+	text-align: left;
+}

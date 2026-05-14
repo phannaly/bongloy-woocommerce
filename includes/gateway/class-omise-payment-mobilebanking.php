@@ -1,11 +1,15 @@
 <?php
 defined( 'ABSPATH' ) or die( 'No direct script access allowed.' );
 
-class Omise_Payment_Mobilebanking extends Omise_Payment_Offsite {
-	public function __construct() {
+class Omise_Payment_Mobilebanking extends Omise_Payment_Offsite
+{
+	public const ID = 'omise_mobilebanking';
+
+	public function __construct()
+	{
 		parent::__construct();
 
-		$this->id                 = 'omise_mobilebanking';
+		$this->id                 = self::ID;
 		$this->has_fields         = true;
 		$this->method_title       = __( 'Omise Mobile Banking', 'omise' );
 		$this->method_description = wp_kses(
@@ -20,7 +24,7 @@ class Omise_Payment_Mobilebanking extends Omise_Payment_Offsite {
 
 		$this->title                = $this->get_option( 'title' );
 		$this->description          = $this->get_option( 'description' );
-		$this->restricted_countries = array( 'SG', 'TH');
+		$this->restricted_countries = array( 'TH' );
 
 		$this->backend     = new Omise_Backend_Mobile_Banking;
 
@@ -33,7 +37,8 @@ class Omise_Payment_Mobilebanking extends Omise_Payment_Offsite {
 	 * @see WC_Settings_API::init_form_fields()
 	 * @see woocommerce/includes/abstracts/abstract-wc-settings-api.php
 	 */
-	public function init_form_fields() {
+	public function init_form_fields()
+	{
 		$this->form_fields = array(
 			'enabled' => array(
 				'title'   => __( 'Enable/Disable', 'omise' ),
@@ -62,40 +67,43 @@ class Omise_Payment_Mobilebanking extends Omise_Payment_Offsite {
 	 * @see woocommerce/includes/abstracts/abstract-wc-payment-gateway.php
 	 */
 	public function payment_fields() {
+		$currency       = get_woocommerce_currency();
+		$is_upa_enabled = Omise_Setting::instance()->is_upa_enabled();
 		parent::payment_fields();
 
-		Omise_Util::render_view( 'templates/payment/form-mobilebanking.php', 
-		array(
-			'mobile_banking_backends' => $this->backend->get_available_providers(),
-		) );
+		Omise_Util::render_view(
+			'templates/payment/form-mobilebanking.php',
+			array(
+				'is_upa_enabled'          => $is_upa_enabled,
+				'mobile_banking_backends' => $is_upa_enabled ? array() : $this->backend->get_available_providers( $currency ),
+			)
+		);
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function charge( $order_id, $order ) {
-		$metadata = array_merge(
-			apply_filters( 'omise_charge_params_metadata', array(), $order ),
-			array( 'order_id' => $order_id ) // override order_id as a reference for webhook handlers.
-		);
-		$return_uri = add_query_arg(
-			array(
-				'wc-api'   => 'omise_mobilebanking_callback',
-				'order_id' => $order_id
-			),
-			home_url()
+	public function charge($order_id, $order)
+	{
+		$source_type = sanitize_text_field($_POST['omise-offsite']);
+		$requestData = $this->build_charge_request(
+			$order_id, $order, $source_type, $this->id . "_callback"
 		);
 
-		return OmiseCharge::create( array(
-			'amount'      => Omise_Money::to_subunit( $order->get_total(), $order->get_currency() ),
-			'currency'    => $order->get_currency(),
-			'description' => apply_filters('omise_charge_params_description', 'WooCommerce Order id ' . $order_id, $order),
-			'source'      => array(
-				'type' => sanitize_text_field( $_POST['omise-offsite']),
-				'platform_type' => Omise_Util::get_platform_type( wc_get_user_agent() ) 
-			),
-			'return_uri'  => $return_uri,
-			'metadata'    => $metadata
-		) );
+		$requestData['source'] = array_merge($requestData['source'], [
+			'platform_type' => Omise_Util::get_platform_type(wc_get_user_agent())
+		]);
+		return OmiseCharge::create($requestData);
+	}
+
+	/**
+	 * check if payment method is support by omise capability api version 2017
+	 * 
+	 * @param  array of backends source_type 
+	 *
+	 * @return array|false
+	 */
+	public function is_capability_support( $available_payment_methods ) {
+		return preg_grep('/^mobile_banking_/', $available_payment_methods);
 	}
 }

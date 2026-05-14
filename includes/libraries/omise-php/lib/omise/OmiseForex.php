@@ -15,7 +15,7 @@ class OmiseForex extends OmiseApiResource
      */
     public static function retrieve($currency = '', $publickey = null, $secretkey = null)
     {
-        return parent::g_retrieve(get_class(), self::getUrl($currency), $publickey, $secretkey);
+        return parent::g_retrieve(self::getUrl($currency), $publickey, $secretkey);
     }
 
     /**
@@ -23,7 +23,7 @@ class OmiseForex extends OmiseApiResource
      */
     public function reload()
     {
-        parent::g_reload(self::getUrl($this['from']));
+        parent::g_reload(self::getUrl($this['base']));
     }
 
     /**

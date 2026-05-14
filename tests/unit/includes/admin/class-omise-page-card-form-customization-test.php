@@ -1,0 +1,387 @@
+<?php
+
+use PHPUnit\Framework\TestCase;
+
+/**
+ * @runTestsInSeparateProcesses
+ */
+class Omise_Page_Card_From_Customization_Test extends TestCase
+{
+    protected function setUp(): void
+    {
+        Brain\Monkey\setUp();
+        Brain\Monkey\Functions\stubs(
+            [
+                'sanitize_hex_color' => function ($value) {
+                    if (!is_string($value)) {
+                        return null;
+                    }
+
+                    $value = trim($value);
+                    if (preg_match('/^#(?:[A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/', $value)) {
+                        return $value;
+                    }
+
+                    return null;
+                }
+            ]
+        );
+        Mockery::mock('alias:Omise_Admin_Page')->shouldIgnoreMissing();
+        require_once __DIR__ . '/../../../../includes/admin/class-omise-page-card-form-customization.php';
+    }
+
+    protected function tearDown(): void
+    {
+        Brain\Monkey\tearDown();
+        Mockery::close();
+    }
+
+    /**
+     * @test
+     */
+    public function testGetLightTheme()
+    {
+        $expected = [
+			'font' => [
+				'name' => 'Poppins',
+				'size' => 16,
+				'custom_name' => ''
+			],
+			'input' => [
+				'height' => '44px',
+				'border_radius' => '4px',
+				'border_color' => '#ced3de',
+				'active_border_color' => '#1451cc',
+				'background_color' => '#ffffff',
+				'label_color' => '#212121',
+				'text_color' => '#212121',
+				'placeholder_color' => '#98a1b2',
+			],
+			'checkbox' => [
+				'text_color' => '#1c2433',
+				'theme_color' => '#1451cc',
+			],
+			'upa' => [
+				'theme_color' => '#173799',
+				'text_color' => '#FFFFFF',
+			]
+		];
+
+        $obj = Omise_Page_Card_From_Customization::get_instance();
+
+        // calling private method
+        $themeValues = $this->invokeMethod($obj, 'get_light_theme', []);
+
+        $this->assertEqualsCanonicalizing($expected, $themeValues);
+    }
+
+    /**
+     * @test
+     */
+    public function testGetDarkTheme()
+    {
+        $expected = [
+			'font' => [
+				'name' => 'Poppins',
+				'size' => 16,
+				'custom_name' => ''
+			],
+			'input' => [
+				'height' => '44px',
+				'border_radius' => '4px',
+				'border_color' => '#475266',
+				'active_border_color' => '#475266',
+				'background_color' => '#131926',
+				'label_color' => '#E6EAF2',
+				'text_color' => '#ffffff',
+				'placeholder_color' => '#DBDBDB',
+			],
+			'checkbox' => [
+				'text_color' => '#E6EAF2',
+				'theme_color' => '#1451CC',
+			],
+			'upa' => [
+				'theme_color' => '#173799',
+				'text_color' => '#FFFFFF',
+			]
+		];
+
+        $obj = Omise_Page_Card_From_Customization::get_instance();
+
+        // calling private method
+        $themeValues = $this->invokeMethod($obj, 'get_dark_theme', []);
+
+        $this->assertEqualsCanonicalizing($expected, $themeValues);
+    }
+
+    /**
+     * Test for merchants using secure form prior to v5.6.0
+     * Make sure it includes custom_name
+     * @test
+     */
+    public function testGetDesignSettingIncludesCustomName()
+    {
+        // settings of merchant's secure form prior to v5.6.0
+        $savedSettings = [
+            'font' => [
+                'name' => 'Poppins',
+                'size' => 16,
+            ],
+            'input' => [
+                'height' => '44px',
+                'border_radius' => '4px',
+                'border_color' => '#475266',
+                'active_border_color' => '#475266',
+                'background_color' => '#131926',
+                'label_color' => '#E6EAF2',
+                'text_color' => '#ffffff',
+                'placeholder_color' => '#DBDBDB',
+            ],
+            'checkbox' => [
+                'text_color' => '#E6EAF2',
+                'theme_color' => '#1451CC',
+            ]
+        ];
+
+        Brain\Monkey\Functions\stubs( [
+            'get_option' => $savedSettings,
+		] );
+
+        $obj = Omise_Page_Card_From_Customization::get_instance();
+        $designValues = $obj->get_design_setting();
+
+        $expected = $savedSettings;
+        $expected['font']['custom_name'] = '';
+        $expected['upa'] = [
+            'theme_color' => '#173799',
+            'text_color' => '#FFFFFF',
+        ];
+        $this->assertEqualsCanonicalizing($expected, $designValues);
+        $this->assertArrayHasKey('custom_name', $designValues['font']);
+        $this->assertArrayHasKey('upa', $designValues);
+    }
+
+    /**
+     * @test
+     */
+    public function testGetUpaStyleSettingsReturnsUpaColorsAndIgnoresCheckboxColors()
+    {
+        $savedSettings = [
+            'font' => [
+                'name' => 'Poppins',
+                'size' => 16,
+                'custom_name' => '',
+            ],
+            'input' => [
+                'height' => '44px',
+                'border_radius' => '4px',
+                'border_color' => '#475266',
+                'active_border_color' => '#475266',
+                'background_color' => '#131926',
+                'label_color' => '#E6EAF2',
+                'text_color' => '#ffffff',
+                'placeholder_color' => '#DBDBDB',
+            ],
+            'checkbox' => [
+                'text_color' => '#111111',
+                'theme_color' => '#222222',
+            ],
+            'upa' => [
+                'text_color' => '#fff',
+                'theme_color' => '#096B68',
+            ]
+        ];
+
+        Brain\Monkey\Functions\stubs([
+            'get_option' => $savedSettings,
+        ]);
+
+        $obj = Omise_Page_Card_From_Customization::get_instance();
+
+        $this->assertSame(
+            [
+                'theme_color' => '#096B68',
+                'text_color' => '#fff',
+            ],
+            $obj->get_upa_style_settings()
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function testGetUpaStyleSettingsReturnsDefaultColorsForInvalidValues()
+    {
+        $savedSettings = [
+            'font' => [
+                'name' => 'Poppins',
+                'size' => 16,
+                'custom_name' => '',
+            ],
+            'input' => [
+                'height' => '44px',
+                'border_radius' => '4px',
+                'border_color' => '#475266',
+                'active_border_color' => '#475266',
+                'background_color' => '#131926',
+                'label_color' => '#E6EAF2',
+                'text_color' => '#ffffff',
+                'placeholder_color' => '#DBDBDB',
+            ],
+            'checkbox' => [
+                'text_color' => '#E6EAF2',
+                'theme_color' => '#1451CC',
+            ],
+            'upa' => [
+                'text_color' => 'invalid',
+                'theme_color' => '#invalid',
+            ]
+        ];
+
+        Brain\Monkey\Functions\stubs([
+            'get_option' => $savedSettings,
+        ]);
+
+        $obj = Omise_Page_Card_From_Customization::get_instance();
+
+        $this->assertSame(
+            [
+                'theme_color' => '#173799',
+                'text_color' => '#FFFFFF',
+            ],
+            $obj->get_upa_style_settings()
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function testGetUpaStyleSettingsReturnsDefaultsWhenColorKeyMissing()
+    {
+        $savedSettings = [
+            'font' => [
+                'name' => 'Poppins',
+                'size' => 16,
+                'custom_name' => '',
+            ],
+            'input' => [
+                'height' => '44px',
+                'border_radius' => '4px',
+                'border_color' => '#475266',
+                'active_border_color' => '#475266',
+                'background_color' => '#131926',
+                'label_color' => '#E6EAF2',
+                'text_color' => '#ffffff',
+                'placeholder_color' => '#DBDBDB',
+            ],
+            'checkbox' => [
+                'theme_color' => '#1451CC',
+                'text_color' => '#E6EAF2',
+            ],
+            'upa' => [
+                'theme_color' => '#1451CC',
+            ]
+        ];
+
+        Brain\Monkey\Functions\stubs([
+            'get_option' => $savedSettings,
+        ]);
+
+        $obj = Omise_Page_Card_From_Customization::get_instance();
+
+        $this->assertSame(
+            [
+                'theme_color' => '#1451CC',
+                'text_color' => '#FFFFFF',
+            ],
+            $obj->get_upa_style_settings()
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function testSaveSanitizesUpaColorsBeforePersisting()
+    {
+        $savedSettings = [
+            'font' => [
+                'name' => 'Poppins',
+                'size' => 16,
+                'custom_name' => '',
+            ],
+            'input' => [
+                'height' => '44px',
+                'border_radius' => '4px',
+                'border_color' => '#475266',
+                'active_border_color' => '#475266',
+                'background_color' => '#131926',
+                'label_color' => '#E6EAF2',
+                'text_color' => '#ffffff',
+                'placeholder_color' => '#DBDBDB',
+            ],
+            'checkbox' => [
+                'theme_color' => '#1451CC',
+                'text_color' => '#E6EAF2',
+            ],
+            'upa' => [
+                'theme_color' => '#1451CC',
+                'text_color' => '#FFFFFF',
+            ],
+        ];
+
+        $capturedOptions = null;
+
+        Brain\Monkey\Functions\stubs([
+            'get_option' => $savedSettings,
+            'wp_verify_nonce' => true,
+            'sanitize_text_field' => function ($value) {
+                return is_scalar($value) ? (string) $value : '';
+            },
+            'update_option' => function ($key, $value) use (&$capturedOptions) {
+                $capturedOptions = $value;
+                return true;
+            },
+        ]);
+
+        $obj = new class extends Omise_Page_Card_From_Customization {
+            public function runSave($data)
+            {
+                return $this->save($data);
+            }
+
+            protected function add_message($type, $message)
+            {
+            }
+        };
+
+        $obj->runSave([
+            'omise_setting_page_nonce' => 'nonce',
+            'upa' => [
+                'theme_color' => '#invalid',
+                'text_color' => '#abc',
+            ],
+        ]);
+
+        $this->assertIsArray($capturedOptions);
+        $this->assertSame('#173799', $capturedOptions['upa']['theme_color']);
+        $this->assertSame('#abc', $capturedOptions['upa']['text_color']);
+    }
+
+    /**
+     * Call protected/private method of a class.
+     *
+     * @param object $object    Instantiated object that we will run method on.
+     * @param string $methodName Method name to call
+     * @param array  $parameters Array of parameters to pass into method.
+     *
+     * @return mixed Method return.
+     */
+    public function invokeMethod($object, $methodName, array $parameters = [])
+    {
+        $reflection = new \ReflectionClass(get_class($object));
+        $method = $reflection->getMethod($methodName);
+        $method->setAccessible(true);
+
+        return $method->invokeArgs($object, $parameters);
+    }
+}

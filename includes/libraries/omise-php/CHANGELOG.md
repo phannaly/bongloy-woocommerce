@@ -1,5 +1,36 @@
 # CHANGELOG
 
+### [v3.0.0 _(Apr 08, 2025)_](https://github.com/omise/omise-php/releases/tag/v3.0.0)
+
+- Resolve issue of keys passed to method not being used [#172]((https://github.com/omise/omise-php/pull/172))
+- [MIT-3253] Support API `2019-05-29` [#177]((https://github.com/omise/omise-php/pull/177))
+- [MIT-3253] Create Http interface for executing API request [#178]((https://github.com/omise/omise-php/pull/178))
+
+### [v2.18.0 _(Jul 09, 2024)_](https://github.com/omise/omise-php/releases/tag/v2.18.0)
+
+- Fix the latest version link in README. ([#157](https://github.com/omise/omise-php/pull/167))
+- Add #[AllowDynamicProperties] to not emit deprecation notice. ([#157](https://github.com/omise/omise-php/pull/168))
+
+### [v2.17.0 _(Sept 06, 2023)_](https://github.com/omise/omise-php/releases/tag/v2.17.0)
+
+- Added support for partial capture ([#157](https://github.com/omise/omise-php/pull/157))
+
+### [v2.16.1 _(April 20, 2023)_](https://github.com/omise/omise-php/releases/tag/v2.16.1)
+- Removed the predefined installment minimum value ([#151](https://github.com/omise/omise-php/pull/151))
+- Bug fixed on `OmiseSearch::scope` public key and secret key override as null ([#149](https://github.com/omise/omise-php/pull/149))
+- Sonarcloud integration for code coverage ([#148](https://github.com/omise/omise-php/pull/148))
+
+### [v2.16.0 _(August 25, 2022)_](https://github.com/omise/omise-php/releases/tag/v2.16.0)
+- Made compatible with PHP 5.6 to 8.1 ([#141](https://github.com/omise/omise-php/pull/144))
+
+### [v2.15.0 _(August 2, 2022)_](https://github.com/omise/omise-php/releases/tag/v2.15.0)
+
+- Replace Curl with Guzzle Client ([#141](https://github.com/omise/omise-php/pull/141))
+
+### [v2.14.0 _(July 25, 2022)_](https://github.com/omise/omise-php/releases/tag/v2.14.0)
+
+- Add Support php version 8.1 ([#140](https://github.com/omise/omise-php/pull/140))
+
 ### [v2.13.0 _(April 7, 2021)_](https://github.com/omise/omise-php/releases/tag/v2.13.0)
 
 - Change installment minimum to 200000 subunits ([#132](https://github.com/omise/omise-php/pull/132))

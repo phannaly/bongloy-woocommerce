@@ -18,10 +18,21 @@ class Omise_Backend_FPX extends Omise_Backend {
 	 * @return array  of an available banks
 	 */
 	public function get_available_banks() {
-		$providers = $this->capabilities()->getFPXBanks();
-		$first_value = reset($providers);
+		$capability = $this->capability();
 
-		if (property_exists($first_value, 'banks')) {
+		if ( !$capability ){
+			return null;
+		}
+
+		$providers = $capability->getFPXBanks();
+		$first_value = $providers;
+
+		// Preventing the following error:
+		// Uncaught TypeError: property_exists(): Argument #1 must be of type object|string, bool given
+		$typeofFirstValue = gettype($first_value);
+		$isObjectOrString = 'object' === $typeofFirstValue || 'string' === $typeofFirstValue;
+
+		if ($isObjectOrString && property_exists($first_value, 'banks')) {
 			return $first_value->banks;
 		}
 	}

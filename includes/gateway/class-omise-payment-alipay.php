@@ -17,6 +17,7 @@ class Omise_Payment_Alipay extends Omise_Payment_Offsite {
 		$this->title                = $this->get_option( 'title' );
 		$this->description          = $this->get_option( 'description' );
 		$this->restricted_countries = array( 'TH' );
+		$this->source_type          = 'alipay';
 
 		add_action( 'woocommerce_api_' . $this->id . '_callback', 'Omise_Callback::execute' );
 		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
@@ -49,31 +50,5 @@ class Omise_Payment_Alipay extends Omise_Payment_Offsite {
 				'description' => __( 'This controls the description the user sees during checkout.', 'omise' )
 			),
 		);
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function charge( $order_id, $order ) {
-		$metadata = array_merge(
-			apply_filters( 'omise_charge_params_metadata', array(), $order ),
-			array( 'order_id' => $order_id ) // override order_id as a reference for webhook handlers.
-		);
-		$return_uri = add_query_arg(
-			array(
-				'wc-api'   => 'omise_alipay_callback',
-				'order_id' => $order_id
-			),
-			home_url()
-		);
-
-		return OmiseCharge::create( array(
-			'amount'      => Omise_Money::to_subunit( $order->get_total(), $order->get_currency() ),
-			'currency'    => $order->get_currency(),
-			'description' => apply_filters( 'omise_charge_params_description', 'WooCommerce Order id ' . $order_id, $order ),
-			'source'      => array( 'type' => 'alipay' ),
-			'return_uri'  => $return_uri,
-			'metadata'    => $metadata
-		) );
 	}
 }

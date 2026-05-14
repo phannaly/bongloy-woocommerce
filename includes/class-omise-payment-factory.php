@@ -18,7 +18,6 @@ class Omise_Payment_Factory {
 		'Omise_Payment_FPX',
 		'Omise_Payment_Creditcard',
 		'Omise_Payment_Installment',
-		'Omise_Payment_Internetbanking',
 		'Omise_Payment_Konbini',
 		'Omise_Payment_Mobilebanking',
 		'Omise_Payment_Paynow',
@@ -30,13 +29,26 @@ class Omise_Payment_Factory {
 		'Omise_Payment_Gcash',
 		'Omise_Payment_Kakaopay',
 		'Omise_Payment_TouchNGo',
+		'Omise_Payment_RabbitLinePay',
+		'Omise_Payment_OCBC_Digital',
+		'Omise_Payment_GrabPay',
+		'Omise_Payment_GooglePay',
+		'Omise_Payment_Boost',
+		'Omise_Payment_ShopeePay',
+		'Omise_Payment_Maybank_QR',
+		'Omise_Payment_DuitNow_QR',
+		'Omise_Payment_DuitNow_OBW',
+		'Omise_Payment_Atome',
+		'Omise_Payment_PayPay',
+		'Omise_Payment_Wechat_Pay',
 	);
 
 	/**
 	 * @param string $id  Omise payment method's id.
 	 */
 	public static function get_payment_method( $id ) {
-		$methods = ( WC_Payment_Gateways::instance() )->payment_gateways();
+		$gateway = WC_Payment_Gateways::instance();
+		$methods = $gateway->payment_gateways();
 		return isset( $methods[ $id ] ) ? $methods[ $id ] : null;
 	}
 }

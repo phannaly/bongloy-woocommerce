@@ -11,7 +11,7 @@ class Omise_Payment_Konbini extends Omise_Payment_Offline {
 
 		$this->id                 = 'omise_konbini';
 		$this->has_fields         = true;
-		$this->method_title       = __( 'Convenience Store / Pay-easy / Online Banking', 'omise' );
+		$this->method_title       = __( 'Omise Convenience Store / Pay-easy / Online Banking', 'omise' );
 		$this->method_description = wp_kses(
 			__( 'Accept payments through <strong>Convenience Store</strong> / <strong>Pay-easy</strong> / <strong>Online Banking</strong> via Omise payment gateway.', 'omise' ),
 			array( 'strong' => array() )
@@ -23,6 +23,7 @@ class Omise_Payment_Konbini extends Omise_Payment_Offline {
 		$this->title                = $this->get_option( 'title' );
 		$this->description          = $this->get_option( 'description' );
 		$this->restricted_countries = array( 'JP' );
+		$this->source_type          = 'econtext';
 
 		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
 		add_action( 'woocommerce_order_action_' . $this->id . '_sync_payment', array( $this, 'sync_payment' ) );
@@ -62,31 +63,43 @@ class Omise_Payment_Konbini extends Omise_Payment_Offline {
 	 * @inheritdoc
 	 */
 	public function payment_fields() {
+		parent::payment_fields();
 		Omise_Util::render_view( 'templates/payment/form-konbini.php', array() );
 	}
 
 	/**
 	 * @inheritdoc
 		*/
-	public function charge( $order_id, $order ) {
-		$konbini_name  = isset( $_POST['omise_konbini_name'] ) ? sanitize_text_field( $_POST['omise_konbini_name'] ) : '';
-		$konbini_email = isset( $_POST['omise_konbini_email'] ) ? sanitize_text_field( $_POST['omise_konbini_email'] ) : '';
-		$konbini_phone = isset( $_POST['omise_konbini_phone'] ) ? sanitize_text_field( $_POST['omise_konbini_phone'] ) : '';
+	public function charge($order_id, $order)
+	{
+		$requestData = $this->get_charge_request($order_id, $order);
+		return OmiseCharge::create($requestData);
+	}
 
-		$total         = $order->get_total();
-		$currency      = $order->get_order_currency();
-		$metadata      = array_merge(
-			apply_filters( 'omise_charge_params_metadata', array(), $order ),
-			array( 'order_id' => $order_id ) // override order_id as a reference for webhook handlers.
+	public function get_charge_request($order_id, $order)
+	{
+		$requestData = $this->build_charge_request(
+			$order_id,
+			$order,
+			$this->source_type
 		);
 
-		return OmiseCharge::create( array(
-			'amount'      => Omise_Money::to_subunit( $total, $currency ),
-			'currency'    => $currency,
-			'description' => apply_filters( 'omise_charge_params_description', 'WooCommerce Order id ' . $order_id, $order ),
-			'source'      => array( 'type' => 'econtext', 'name' => $konbini_name, 'email' => $konbini_email, 'phone_number' => $konbini_phone ),
-			'metadata'    => $metadata
-		) );
+		$konbini_name = $_POST['omise_konbini_name'];
+		$konbini_name  = isset($konbini_name) ? $konbini_name : '';
+
+		$konbini_email = $_POST['omise_konbini_email'];
+		$konbini_email = isset($konbini_email) ? $konbini_email : '';
+
+		$konbini_phone = $_POST['omise_konbini_phone'];
+		$konbini_phone = isset($konbini_phone) ? $konbini_phone : '';
+
+		$requestData['source'] = array_merge($requestData['source'], [
+			'name' => sanitize_text_field($konbini_name),
+			'email' => sanitize_text_field($konbini_email),
+			'phone_number' => sanitize_text_field($konbini_phone)
+		]);
+
+		return $requestData;
 	}
 
 	/**
@@ -107,10 +120,9 @@ class Omise_Payment_Konbini extends Omise_Payment_Offline {
 
 		<div class="omise omise-konbini-details" <?php echo 'email' === $context ? 'style="margin-bottom: 4em; text-align:center;"' : ''; ?>>
 			<p>
-				<?php echo __( 'Your payment code has been sent to your email', 'omise' ); ?>
+				<?= __( 'Your payment code has been sent to your email', 'omise' ); ?>
 				<br/>
-				<?php
-				echo sprintf(
+				<?= sprintf(
 					wp_kses(
 						__( 'Please find the payment instruction there or click on the link below and complete the payment by <br/><strong>%s %s</strong>.', 'omise' ),
 						array( 'br' => array(), 'strong' => array() )
@@ -120,10 +132,9 @@ class Omise_Payment_Konbini extends Omise_Payment_Offline {
 				);
 				?>
 				<br/>
-				<?php
-				echo sprintf(
+				<?= sprintf(
 					wp_kses(
-						__( '<a href="%s" target="_blank">Payment Link</a>', 'omise' ),
+						'<a href="%s" target="_blank">' . __( 'Payment Link', 'omise' ) . '</a>' ,
 						array( 'a' => array( 'href' => array(), 'target' => array() ) )
 					),
 					$payment_link

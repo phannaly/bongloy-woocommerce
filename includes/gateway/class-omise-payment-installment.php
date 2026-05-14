@@ -1,60 +1,65 @@
 <?php
-defined( 'ABSPATH' ) or die( 'No direct script access allowed.' );
+defined('ABSPATH') or die('No direct script access allowed.');
 
 /**
  * @since 3.4
  */
-class Omise_Payment_Installment extends Omise_Payment_Offsite {
-	public function __construct() {
+class Omise_Payment_Installment extends Omise_Payment_Offsite
+{
+	public function __construct()
+	{
 		parent::__construct();
 
 		$this->id                 = 'omise_installment';
 		$this->has_fields         = true;
-		$this->method_title       = __( 'Omise Installments', 'omise' );
+		$this->method_title       = __('Omise Installments', 'omise');
 		$this->method_description = wp_kses(
-			__( 'Accept <strong>installment payments</strong> via Omise payment gateway.', 'omise' ),
-			array( 'strong' => array() )
+			__('Accept <strong>installment payments</strong> via Omise payment gateway.', 'omise'),
+			array('strong' => array())
 		);
-		$this->supports           = array( 'products', 'refunds' );
+		$this->supports           = array('products', 'refunds');
 
 		$this->init_form_fields();
 		$this->init_settings();
 
-		$this->title                = $this->get_option( 'title' );
-		$this->description          = $this->get_option( 'description' );
-		$this->restricted_countries = array( 'TH', 'MY' );
+		$this->title                = $this->get_option('title');
+		$this->description          = $this->get_option('description');
+		$this->restricted_countries = array('TH', 'MY');
+		$this->source_type          = 'installment';
 
 		$this->backend     = new Omise_Backend_Installment;
 
-		add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
-		add_action( 'woocommerce_order_action_' . $this->id . '_sync_payment', array( $this, 'sync_payment' ) );
-		add_action( 'woocommerce_api_' . $this->id . '_callback', 'Omise_Callback::execute' );
+		add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
+		add_action('woocommerce_order_action_' . $this->id . '_sync_payment', array($this, 'sync_payment'));
+		add_action('woocommerce_api_' . $this->id . '_callback', 'Omise_Callback::execute');
+		add_action('wp_enqueue_scripts', array( $this, 'omise_scripts' ));
 	}
 
 	/**
 	 * @see WC_Settings_API::init_form_fields()
 	 * @see woocommerce/includes/abstracts/abstract-wc-settings-api.php
 	 */
-	public function init_form_fields() {
+	public function init_form_fields()
+	{
 		$this->form_fields = array(
 			'enabled' => array(
-				'title'   => __( 'Enable/Disable', 'omise' ),
+				'title'   => __('Enable/Disable', 'omise'),
 				'type'    => 'checkbox',
-				'label'   => __( 'Enable Omise Installment Payments', 'omise' ),
+				'label'   => __('Enable Omise Installment Payments', 'omise'),
 				'default' => 'no'
 			),
 
 			'title' => array(
-				'title'       => __( 'Title', 'omise' ),
+				'title'       => __('Title', 'omise'),
 				'type'        => 'text',
-				'description' => __( 'This controls the title the user sees during checkout.', 'omise' ),
-				'default'     => __( 'Installments', 'omise' ),
+				'description' => __('This controls the title the user sees during checkout.', 'omise'),
+				'default'     => __('Installments', 'omise'),
 			),
 
 			'description' => array(
-				'title'       => __( 'Description', 'omise' ),
+				'title'       => __('Description', 'omise'),
 				'type'        => 'textarea',
-				'description' => __( 'This controls the description the user sees during checkout.', 'omise' )
+				'description' => __('This controls the description the user sees during checkout.', 'omise')
 			),
 		);
 	}
@@ -62,47 +67,195 @@ class Omise_Payment_Installment extends Omise_Payment_Offsite {
 	/**
 	 * @inheritdoc
 	 */
-	public function payment_fields() {
+	public function process_payment($order_id)
+	{
+		if (!$this->should_use_upa_installment_flow()) {
+			return $this->process_standard_payment($order_id);
+		}
+
+		return $this->process_upa_checkout_session_payment($order_id);
+	}
+
+	/**
+	 * Normal installment should be redirected to UPA only when:
+	 * - UPA is enabled by environment + merchant settings.
+	 * - Checkout is not a WLB installment request.
+	 *
+	 * @return bool
+	 */
+	protected function should_use_upa_installment_flow()
+	{
+		return Omise_Setting::instance()->is_upa_enabled() && !$this->is_wlb_installment_request();
+	}
+
+	/**
+	 * WLB installment is identified by card token presence.
+	 *
+	 * @return bool
+	 */
+	protected function is_wlb_installment_request()
+	{
+		if (isset($_POST['omise_installment_flow'])) {
+			$flow = sanitize_text_field($_POST['omise_installment_flow']);
+
+			if ('wlb' === $flow) {
+				return true;
+			}
+
+			if ('normal' === $flow) {
+				return false;
+			}
+		}
+
+		if (!isset($_POST['omise_token'])) {
+			return false;
+		}
+
+		$token = sanitize_text_field($_POST['omise_token']);
+		return '' !== $token;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function payment_fields()
+	{
+		parent::payment_fields();
+
+		Omise_Util::render_view('templates/payment/form-installment.php', $this->get_view_data());
+	}
+
+	public function get_view_data()
+	{
 		$currency   = get_woocommerce_currency();
-		$cart_total = WC()->cart->total;
+		$cart_total = $this->get_total_amount();
 
-		Omise_Util::render_view(
-			'templates/payment/form-installment.php',
-			array(
-				'installment_backends' => $this->backend->get_available_providers( $currency, $cart_total ),
-				'is_zero_interest'     => $this->backend->capabilities()->is_zero_interest()
-			)
-		);
+		$capability = $this->backend->capability();
+		$installmentMinLimit = $capability->getInstallmentMinLimit();
+		$is_upa_enabled = Omise_Setting::instance()->is_upa_enabled();
+		$has_wlb_providers = $this->backend->has_wlb_providers($currency, $cart_total);
+
+		return [
+			'installments_enabled'  => $this->backend->get_available_providers($currency, $cart_total),
+			'is_zero_interest'      => $capability ? $capability->is_zero_interest() : false,
+			'installment_min_limit' => Omise_Money::convert_currency_unit($installmentMinLimit, $currency),
+			'currency'              => $currency,
+			'total_amount'          => Omise_Money::to_subunit($cart_total, $currency),
+			'has_wlb_providers'     => $has_wlb_providers,
+			'is_upa_enabled'        => $is_upa_enabled,
+			'show_installment_form' => !$is_upa_enabled || $has_wlb_providers,
+		];
+	}
+
+	/**
+	 * Get the total amount of an order
+	 */
+	public function get_total_amount()
+	{
+		global $wp;
+
+		if (
+			isset($wp->query_vars['order-pay']) &&
+			(int)$wp->query_vars['order-pay'] > 0
+		) {
+			$order_id = (int)$wp->query_vars['order-pay'];
+			$order = wc_get_order( $order_id );
+			return $order->get_total();
+		}
+
+		// if not an order page then get total from the cart
+		return WC()->cart->total;
+	}
+
+	/**
+	 * Get the total amount of an order in cents
+	 */
+	public function convert_to_cents($amount)
+	{
+			return intval(floatval($amount) * 100);
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public function charge( $order_id, $order ) {
-		$source_type       = isset( $_POST['source']['type'] ) ? $_POST['source']['type'] : '';
-		$installment_terms = isset( $_POST[ $source_type . '_installment_terms'] ) ? $_POST[ $source_type . '_installment_terms'] : '';
-		$metadata          = array_merge(
-			apply_filters( 'omise_charge_params_metadata', array(), $order ),
-			array( 'order_id' => $order_id ) // override order_id as a reference for webhook handlers.
+	public function charge($order_id, $order)
+	{
+		$requestData = $this->build_charge_request(
+			$order_id,
+			$order,
+			null,
+			$this->id . "_callback"
 		);
-		$return_uri = add_query_arg(
-			array(
-				'wc-api'   => 'omise_installment_callback',
-				'order_id' => $order_id
-			),
-			home_url()
-		);
+		$requestData['source'] = isset($_POST['omise_source']) ? wc_clean($_POST['omise_source']) : '';
+		$requestData['card'] = isset($_POST['omise_token']) ? wc_clean($_POST['omise_token']) : '';
 
-		return OmiseCharge::create( array(
-			'amount'            => Omise_Money::to_subunit( $order->get_total(), $order->get_currency() ),
-			'currency'          => $order->get_currency(),
-			'description'       => apply_filters( 'omise_charge_params_description', 'WooCommerce Order id ' . $order_id, $order ),
-			'source'            => array(
-				'type'              => sanitize_text_field( $source_type ),
-				'installment_terms' => sanitize_text_field( $installment_terms )
-			),
-			'return_uri'        => $return_uri,
-			'metadata'          => $metadata
-		) );
+		// Use OMISE_CUSTOM_WLB_ORDER_DESC to define the custom order description.
+		// '{description}' can be used as a placeholder for the original order description.
+		if (defined('OMISE_CUSTOM_WLB_ORDER_DESC') && !empty(OMISE_CUSTOM_WLB_ORDER_DESC) && !empty($requestData['card'])) {
+			$requestData['description'] = str_replace(
+				'{description}',
+				$requestData['description'],
+				sanitize_text_field(OMISE_CUSTOM_WLB_ORDER_DESC)
+			);
+		}
+
+		return OmiseCharge::create($requestData);
+	}
+
+	/**
+	 * check if payment method is support by omise capability api version 2017
+	 *
+	 * @param  array of backends source_type
+	 *
+	 * @return array|false
+	 */
+	public function is_capability_support($available_payment_methods)
+	{
+		return preg_grep('/^installment_/', $available_payment_methods);
+	}
+
+	/**
+	 * @codeCoverageIgnore
+	 */
+	public function omise_scripts() {
+		if ( is_checkout()) {
+			wp_enqueue_script(
+				'omise-js',
+				Omise::OMISE_JS_LINK,
+				[ 'jquery' ],
+				OMISE_WOOCOMMERCE_PLUGIN_VERSION,
+				true
+			);
+
+			wp_enqueue_script(
+				'omise-installment-form',
+				plugins_url( '../../assets/javascripts/omise-installment-form.js', __FILE__ ),
+				[ 'omise-js' ],
+				OMISE_WOOCOMMERCE_PLUGIN_VERSION,
+				true
+			);
+
+			wp_enqueue_script(
+				'omise-payment-form-handler',
+				plugins_url( '../../assets/javascripts/omise-payment-form-handler.js', __FILE__ ),
+				[ 'omise-js' ],
+				OMISE_WOOCOMMERCE_PLUGIN_VERSION,
+				true
+			);
+
+			wp_localize_script(
+				'omise-payment-form-handler',
+				'omise_installment_params',
+				$this->getParamsForJS()
+			);
+		}
+	}
+
+	public function getParamsForJS()
+	{
+		return [
+			'key'    => $this->public_key(),
+			'amount' => $this->convert_to_cents($this->get_total_amount()),
+		];
 	}
 }

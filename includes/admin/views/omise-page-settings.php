@@ -1,4 +1,5 @@
 <div class="wrap omise">
+	<?php $is_upa_feature_flag_enabled = Omise_Setting::instance()->is_upa_feature_flag_enabled(); ?>
 	<style>
 		.omise-notice-testmode {
 			background: #ffce00;
@@ -7,7 +8,8 @@
 			border-left-width: 4px;
 		}
 	</style>
-	<h1><?php echo $title; ?></h1>
+
+	<h1><?= $title; ?></h1>
 
 	<?php $page->display_messages(); ?>
 
@@ -23,14 +25,12 @@
 		<?php
 		echo sprintf(
 			wp_kses(
-				__( 'All of your keys can be found at your Omise dashboard, check the following links.<br/><a href="%s">Test keys</a> or <a href="%s">Live keys</a> (login required)', 'omise' ),
+				__( 'All of your keys can be found at your Omise dashboard, check <a target="_blank" href="%s">here link</a> for the keys. (login required)', 'omise' ),
 				array(
-					'br' => array(),
-					'a'  => array( 'href' => array() )
+					'a'  => array( 'href' => array(), 'target' => array() )
 				)
 			),
-			esc_url( 'https://dashboard.omise.co/test/keys' ),
-			esc_url( 'https://dashboard.omise.co/live/keys' )
+			esc_url( 'https://dashboard.omise.co/v2/settings/keys' )
 		);
 		?>
 	</p>
@@ -106,6 +106,31 @@
 
 		<table class="form-table">
 			<tbody>
+			<tr>
+					<th scope="row"><label><?php _e( 'Enable Dynamic Webhook', 'omise' ); ?></label></th>
+					<td>
+						<fieldset>
+							<select class="regular-text" name="dynamic_webhook" id="dynamic_webhook">
+								<option
+									value="0"
+									<?php echo empty( $settings['dynamic_webhook'] ) ? 'selected' : ''; ?>
+								>
+									No
+								</option>
+								<option
+									value="1"
+									<?php echo ! empty( $settings['dynamic_webhook'] ) ? 'selected' : ''; ?>
+								>
+									Yes
+								</option>
+							</select>
+							<p class="description">
+								<?php
+									echo __( 'If enabled, charge and refund events will be automatically set to be received at the URL below. This can be useful when you need multiple webhook endpoints on the same account. ' );
+								?>
+						</fieldset>
+					</td>
+				</tr>
 				<tr>
 					<th scope="row"><label><?php _e( 'Webhook endpoint', 'omise' ); ?></label></th>
 					<td>
@@ -113,22 +138,45 @@
 							<code><?php echo get_rest_url( null, 'omise/webhooks' ); ?></code>
 							<p class="description">
 								<?php
-								echo sprintf(
-									wp_kses(
-										__( 'To enable <a href="%s">WebHooks</a> feature, you must setup an endpoint at <a href="%s"><strong>Omise dashboard</strong></a> by using the above url <em>(HTTPS only)</em>.', 'omise' ),
-										array(
-											'a'       => array( 'href' => array() ),
-											'em'      => array(),
-											'strong'  => array()
-										)
-									),
-									esc_url( 'https://www.omise.co/api-webhooks' ),
-									esc_url( 'https://dashboard.omise.co/test/webhooks/edit' )
-								);
+									echo sprintf(
+										wp_kses(
+											__( 'Unless dynamic webhooks are enabled, you must add the URL above as a new endpoint on your <a href="%s">Omise dashboard</a> (HTTPS only).', 'omise' ),
+											[
+												'a' => ['href' => []],
+											],
+										),
+										esc_url( 'https://dashboard.omise.co/v2/settings/webhooks' )
+									);
 								?>
 						</fieldset>
 					</td>
-				</tr>
+					</tr>
+				<?php if ( $is_upa_feature_flag_enabled ) : ?>
+					<tr>
+						<th scope="row"><label><?php _e( 'Enable Omise UPA Flow', 'omise' ); ?></label></th>
+						<td>
+							<fieldset>
+								<select class="regular-text" name="enable_upa" id="enable_upa">
+									<option
+										value="0"
+										<?php echo empty( $settings['enable_upa'] ) ? 'selected' : ''; ?>
+									>
+										No
+									</option>
+									<option
+										value="1"
+										<?php echo ! empty( $settings['enable_upa'] ) ? 'selected' : ''; ?>
+									>
+										Yes
+									</option>
+								</select>
+								<p class="description">
+									<?php echo __( 'If enabled, supported payment methods will create payment sessions through Omise hosted checkout page.', 'omise' ); ?>
+								</p>
+							</fieldset>
+						</td>
+					</tr>
+				<?php endif; ?>
 			</tbody>
 		</table>
 
@@ -136,7 +184,8 @@
 
 		<h3><?php _e( 'Payment Methods', 'omise' ); ?></h3>
 		<?php if ($settings['account_country']) : ?>
-			<p><?php _e( 'The table below is a list of available payment methods that you can enable in your WooCommerce store.', 'omise' ); ?></p>
+			<!--  account_country exists when API key is valid -->
+			<p><?php _e( 'The table below is a list of available payment methods for this Omise account that you can enable in your WooCommerce store.', 'omise' ); ?></p>
 			<table class="form-table">
 				<tbody>
 					<tr>
@@ -172,8 +221,7 @@
 									<?php
 									foreach ( Omise()->payment_methods() as $gateway ) :
 										$gateway = new $gateway;
-										if ( $gateway->is_country_support( $settings['account_country'] ) ) :
-
+										if ( $gateway->is_country_support( $settings['account_country'] ) && $gateway->is_capability_support( $available_payment_methods) ) :
 											echo '<tr>';
 
 											foreach ( $columns as $key => $column ) :
@@ -195,6 +243,9 @@
 														echo '<td class="setting" style="text-align: center;">
 															<a href="' . admin_url( 'admin.php?page=wc-settings&tab=checkout&section=' . strtolower( $gateway->id ) ) . '">' . __( 'config', 'omise' ) . '</a>
 														</td>';
+														break;
+
+													default:
 														break;
 												}
 											endforeach;

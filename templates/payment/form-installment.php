@@ -1,51 +1,30 @@
-<?php if ( ! empty( $viewData['installment_backends'] ) ) : ?>
-	<fieldset id="omise-form-installment">
-		<ul class="omise-banks-list">
-			<?php foreach ( $viewData['installment_backends'] as $backend ) : ?>
-				<li class="item">
-					<input id="<?php echo $backend->_id; ?>" type="radio" name="source[type]" value="<?php echo $backend->_id; ?>" />
-					<label for="<?php echo $backend->_id; ?>">
-						<div class="bank-logo <?php echo $backend->provider_code; ?>"></div>
-						<div class="bank-label">
-							<span class="title"><?php echo $backend->provider_name; ?></span><br/>
-							<select id="<?php echo $backend->_id; ?>_installment_terms" name="<?php echo $backend->_id; ?>_installment_terms" class="installment-term-select-box">
-								<option>Select term</option>
-								<?php foreach ( $backend->available_plans as $installment_plan ) : ?>
-									<option value="<?php echo $installment_plan['term_length']; ?>">
-										<?php
-										echo sprintf(
-											__( '%d months', 'omise', 'omise_installment_term_option' ),
-											$installment_plan['term_length']
-										);
-										?>
+<?php
+// @codeCoverageIgnoreStart
+$installments_enabled = isset( $viewData['installments_enabled'] ) && true === (bool) $viewData['installments_enabled'];
+$show_installment_form = isset( $viewData['show_installment_form'] ) && true === (bool) $viewData['show_installment_form'];
 
-										<?php
-										echo sprintf(
-											__( '( %s / months )', 'omise', 'omise_installment_payment_per_month' ),
-											wc_price( $installment_plan['monthly_amount'] )
-										);
-										?>
-									</option>
-								<?php endforeach; ?>
-							</select>
-							<?php if ( ! $viewData['is_zero_interest'] ): ?>
-								<br/><span class="omise-installment-interest-rate">
-									<?php echo sprintf( __( '( interest %g%% )', 'omise' ), $backend->interest_rate ); ?>
-								</span>
-							<?php endif; ?>
-						</div>
-					</label>
-				</li>
-			<?php endforeach; ?>
-		</ul>
-		<div class="omise-buttom-note">
-			<p>
-				<?php echo $viewData['is_zero_interest'] ? __( 'All installment payments are interest free', 'omise' ) : __( 'Monthly payment rates shown may be inaccurate as interest rates are subject to change by its bank issuer.', 'omise' ); ?>
-			</p>
-		</div>
-	</fieldset>
+if ( $installments_enabled ) : ?>
+	<?php if ( $show_installment_form ) : ?>
+		<div id="omise-installment" style="width:100%; max-width: 400px;"></div>
+		<script>
+			window.OMISE_UPDATED_CART_AMOUNT = <?php echo json_encode( (int) $viewData['total_amount'] ); ?>;
+			window.LOCALE = <?php echo json_encode( (string) get_locale() ); ?>;
+			window.OMISE_CUSTOM_FONT_OTHER = 'Other';
+		</script>
+	<?php endif; ?>
 <?php else: ?>
 	<p>
-		<?php echo __( 'There are no installment plans available for this purchase amount  (minimum amount is 2,000 THB).', 'omise' ); ?>
+		<?php
+			if ( get_woocommerce_currency() === 'THB' ) {
+				echo sprintf(
+					__( 'There are no installment plans available for this purchase amount (minimum amount is %s THB).', 'omise' ),
+					htmlspecialchars( (string) $viewData['installment_min_limit'], ENT_QUOTES, 'UTF-8' )
+				);
+			} else {
+				echo __( 'Purchase Amount is lower than the monthly minimum payment amount.', 'omise' );
+			}
+		?>
 	</p>
-<?php endif; ?>
+<?php endif;
+// @codeCoverageIgnoreEnd
+?>

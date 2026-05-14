@@ -1,37 +1,394 @@
-=== Omise WooCommerce ===
+=== Omise Payments ===
 Contributors: Omise
-Tags: omise, payment, payment gateway, woocommerce plugin, installment, internet banking, alipay, paynow, truemoney wallet, woocommerce payment
+Tags: omise, payment, payment gateway, woocommerce, plugin
 Requires at least: 4.3.1
-Tested up to: 5.9.0
-Stable tag: 4.16
+Tested up to: 6.8.1
+Stable tag: 7.2.1
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
-Omise plugin is is the official payment extension which provides support for Omise payment gateway for store builders working on the WooCommerce platform
+Omise WooCommerce is the payment extension which provides support for Omise Payment Gateway for store builders working on the WooCommerce platform.
 
 == Description ==
 
-Omise WooCommerce Gateway Plugin is a WordPress plugin designed specifically for WooCommerce. The plugin adds support for Omise Payment Gateway payment method to WooCommerce.
+Omise Payments is a WordPress plugin designed specifically for WooCommerce. The plugin adds support for Omise Payment Gateway's payment methods to WooCommerce.
 
 == Installation ==
 
 After getting the source code, either downloading as a zip or git clone, put it in WordPress plugins folder (i.e. mv omise /wp-content/plugins/ or upload a zip via WordPress admin Plugins section, just like the other WordPress plugins).
 
-Then, Omise Gateway WordPress plugin should be appeared in WordPress admin page, under the Plugins menu.
+Then, Omise WordPress plugin should be appeared in WordPress admin page, under the Plugins menu.
 From there:
 1. Activate the plugin
 2. Go to WooCommerce -> Settings
-3. Select the Checkout tab on top.
-4. Select Omise payment gateway at the bottom of the page, under Payment Gateways.
-5. Optionally, if you\'d like to have Omise Payment gateway as a default payment gateway, you can check Default.
-6. Click the Settings button and adjust the options.
+3. Select the Payments tab on top.
+4. Enable the payment methods that starts with Omise.
+5. Click on Set up to if you like to add description.
+6. Optionally, if you\'d like to have Omise as a default payment gateway, you can check Default.
+7. Click the Settings button and adjust the options.
 
 == Screenshots ==
-1. Omise Payment Gateway Dashboard
-2. Omise Payment Gateway Setting Page
-3. Omise Payment Gateway Checkout Form
+1. Omise Setting Page
+2. Omise Checkout Form
+3. Omise Dashboard
 
 == Changelog ==
+
+= 7.2.1 =
+
+- Fix card checkout by restoring the Omise.js production CDN URL.
+- Add automated checks to prevent staging Omise endpoint URLs in release files.
+
+= 7.2.0 =
+
+- Fix Block checkout card brand icons to follow the Omise card form settings. (PR: [#562](https://github.com/omise/omise-woocommerce/pull/562))
+
+= 7.1.0 =
+
+- Sunset Internet Banking. (PR: [#559](https://github.com/omise/omise-woocommerce/issues/559))
+- Display card form error on Block component. (PR: [#557](https://github.com/omise/omise-woocommerce/issues/557))
+- Properly clear errors before card form submission on Block component. (PR: [#553](https://github.com/omise/omise-woocommerce/issues/553))
+
+= 7.0.1 =
+
+- Update RabbitLinePay to LinePay and payment logos. (PR: [#549](https://github.com/omise/omise-woocommerce/issues/549))
+- Remove passkey settings. (PR: [#548](https://github.com/omise/omise-woocommerce/issues/548))
+
+= 7.0.0 =
+
+- Introduce new payment passkey to authenticate card transactions. (PR: [#535](https://github.com/omise/omise-woocommerce/issues/535), [#541](https://github.com/omise/omise-woocommerce/issues/541), [#545](https://github.com/omise/omise-woocommerce/issues/545))
+- Create card token with cardholder's email and phone number when provided. (PR: [#537](https://github.com/omise/omise-woocommerce/issues/537))
+
+= 6.4.0 =
+
+- Fix saved card page error on My Account page. (PR: [#538](https://github.com/omise/omise-woocommerce/issues/538))
+- Display actual Paynow QR expiration. (PR: [#539](https://github.com/omise/omise-woocommerce/issues/539))
+
+= 6.3.0 =
+
+- Fix WLB installment order description. (PR: [#534](https://github.com/omise/omise-woocommerce/issues/534))
+- Fix payment form on Pay for Order page. (PR: [#533](https://github.com/omise/omise-woocommerce/issues/533))
+
+= 6.2.2 =
+
+- Add authentication to Paynow status endpoint. (PR: [#530](https://github.com/omise/omise-woocommerce/issues/530))
+
+= 6.2.1 =
+
+- Improve webhook rest route. (PR: [#526](https://github.com/omise/omise-woocommerce/pull/526))
+
+= 6.2.0 =
+
+- Update OmisePHP library to support API 2019-05-29. (PR: [#516](https://github.com/omise/omise-woocommerce/pull/516))
+- Show merchant advice and missing 3DS fields on order note. (PR: [#517](https://github.com/omise/omise-woocommerce/pull/517))
+- Fix PHP error when fetch capability. (PR: [#521](https://github.com/omise/omise-woocommerce/pull/521))
+- Fix WooCommerce Block installment payment. (PR: [#522](https://github.com/omise/omise-woocommerce/pull/522))
+- Support other languages on secure form. (PR: [#524](https://github.com/omise/omise-woocommerce/pull/524))
+- Make WooCommerce Blocks announcement. (PR: [#525](https://github.com/omise/omise-woocommerce/pull/525))
+
+= 6.1.1 =
+
+- Reorganize logo and screenshots assets for automated deployment. (PR: [#513](https://github.com/omise/omise-woocommerce/pull/513))
+
+= 6.1.0 =
+
+- Rebrand Opn Payments to Omise. (PR: [#509](https://github.com/omise/omise-woocommerce/pull/509))
+- Fix Boost payment method is not visible on the checkout page. (PR: [#507](https://github.com/omise/omise-woocommerce/pull/507))
+- Fix credit card block does not show on WooCommerce 9.5.0. (PR: [#508](https://github.com/omise/omise-woocommerce/pull/508))
+
+= 6.0.5 =
+
+- Fix the issue of TrueMoney wallet not showing in payment options. (PR: [#500](https://github.com/omise/omise-woocommerce/pull/500))
+
+= 6.0.4 =
+
+- Fix the issue of missing TrueMoney payment methods. (PR: [#496](https://github.com/omise/omise-woocommerce/pull/496))
+
+= 6.0.3 =
+
+- Fix the issue of GooglePay not showing in shortcode. (PR: [#493](https://github.com/omise/omise-woocommerce/pull/493))
+
+= 6.0.2 =
+
+- Resolved installment issue when card is saved in shortcode setup. (PR: [#490](https://github.com/omise/omise-woocommerce/pull/490))
+
+= 6.0.1 =
+
+- Resolve issue of payment failing on installment when total amount is updated after selecting payment. (PR: [#485](https://github.com/omise/omise-woocommerce/pull/485))
+- Fix Duitnow bank list issue. (PR: [#486](https://github.com/omise/omise-woocommerce/pull/486))
+- Resolve the issue where no payment methods are displayed when the browser's back button is clicked from an issuer page. (PR: [#487](https://github.com/omise/omise-woocommerce/pull/487))
+
+= 6.0.0 =
+
+- Support WooCommerce block. (PR: [#470](https://github.com/omise/omise-woocommerce/pull/470))
+- Fix the loading issue in WooCommerce block cart. (PR: [#477](https://github.com/omise/omise-woocommerce/pull/477))
+- Update banner message. (PR: [#479](https://github.com/omise/omise-woocommerce/pull/479))
+- Make secure form mandatory. (PR: [#480](https://github.com/omise/omise-woocommerce/pull/480))
+- Fix the issue of installment form not loading after an error. (PR: [#482](https://github.com/omise/omise-woocommerce/pull/482))
+
+= 5.9.0 =
+
+- Resolve dynamic property deprecation error for PHP 8.2 and above. (PR: [#465](https://github.com/omise/omise-woocommerce/pull/465))
+
+= 5.8.3 =
+
+- Remove OCBC PAO (PR: [#449](https://github.com/omise/omise-woocommerce/pull/449))
+
+= 5.8.2 =
+
+- Resolve PHP warnings. (PR [#443](https://github.com/omise/omise-woocommerce/pull/443))
+- Remove white box appearing under WeChat Pay. (PR [#444](https://github.com/omise/omise-woocommerce/pull/444))
+- Remove white box appearing under Truemoney. (PR [#445](https://github.com/omise/omise-woocommerce/pull/445))
+- Removed Citi installment. (PR [#446](https://github.com/omise/omise-woocommerce/pull/446))
+
+= 5.8.1 =
+
+- Revert "Use WC order number metadata". (PR [#440](https://github.com/omise/omise-woocommerce/pull/440))
+
+= 5.8.0 =
+
+- Add WeChat Pay. (PR [#434](https://github.com/omise/omise-woocommerce/pull/434))
+- Use WC order number metadata. (PR [#435](https://github.com/omise/omise-woocommerce/pull/435))
+
+= 5.7.0 =
+
+- Added TrueMoney jumpapp. (PR [#431](https://github.com/omise/omise-woocommerce/pull/431))
+- Updated README.md. (PR [#429](https://github.com/omise/omise-woocommerce/pull/429))
+
+= 5.6.2 =
+
+- Update OCBC digital logo. (PR [#422](https://github.com/omise/omise-woocommerce/pull/422))
+- Update installment interest rates. (PR [#423](https://github.com/omise/omise-woocommerce/pull/423))
+
+= 5.6.1 =
+
+- Fixed a custom font name bug. (PR [#419](https://github.com/omise/omise-woocommerce/pull/419))
+
+= 5.6.0 =
+
+- Support Google fonts other than Poppins. (PR [#416](https://github.com/omise/omise-woocommerce/pull/416))
+
+= 5.5.1 =
+
+- Fix mobile banking issue. (PR [#413](https://github.com/omise/omise-woocommerce/pull/413))
+
+= 5.5.0 =
+
+- Added dynamic webhook. (PR [#407](https://github.com/omise/omise-woocommerce/pull/407))
+- Add QR expires countdown for PromptPay. (PR [#408](https://github.com/omise/omise-woocommerce/pull/408))
+
+= 5.4.1 =
+
+- Added payment instructions in thank you page for PromptPay payment. (PR [#401](https://github.com/omise/omise-woocommerce/pull/404))
+
+= 5.4.0 =
+
+- Added OCBC Digital for Singapore PSP. (PR [#401](https://github.com/omise/omise-woocommerce/pull/401))
+
+= 5.3.1 =
+
+- Fixed capabilities api calling on every pages. (PR [#398](https://github.com/omise/omise-woocommerce/pull/398))
+
+= 5.3.0 =
+
+- Add Alipay+ on Thailand psp. (PR [#394](https://github.com/omise/omise-woocommerce/pull/394))
+- Adding admin_notices action once all dependencies are loaded. (PR [#395](https://github.com/omise/omise-woocommerce/pull/395))
+
+= 5.2.1 =
+
+- Fix installment payment when admin manually pay for order. (PR [#388](https://github.com/omise/omise-woocommerce/pull/388))
+- Fixed Japanese translation issue in secure form. (PR [#389](https://github.com/omise/omise-woocommerce/pull/389))
+
+= 5.2.0 =
+
+- Declare High-Performance Order Storage (HPOS) as compatible. (PR [#385](https://github.com/omise/omise-woocommerce/pull/385))
+- Added a script to run test `composer test`. (PR [#385](https://github.com/omise/omise-woocommerce/pull/385))
+- Update sonar properties to exclude javascript files. (PR [#385](https://github.com/omise/omise-woocommerce/pull/384))
+
+= 5.1.1 =
+
+- Remove free products from the Atome bill. (PR [#378](https://github.com/omise/omise-woocommerce/pull/378))
+- Fix incompatible issue with country based payments plugin. (PR [#379](https://github.com/omise/omise-woocommerce/pull/379))
+
+= 5.1.0 =
+
+- Added Atome payment method. (PR [#364](https://github.com/omise/omise-woocommerce/pull/364))
+- Installment minimum amount from capability API. (PR [#365](https://github.com/omise/omise-woocommerce/pull/365))
+- Fixed Truemoney phone number input not displaying. (PR [#367](https://github.com/omise/omise-woocommerce/pull/367))
+- Added Google pay icon. (PR [#368](https://github.com/omise/omise-woocommerce/pull/368))
+- Fixed secure form not displaying on pay for order page. (PR [#371](https://github.com/omise/omise-woocommerce/pull/371))
+- Added PayPay payment method. (PR [#372](https://github.com/omise/omise-woocommerce/pull/372))
+- Fixed secured form database key mismatch. (PR [#373](https://github.com/omise/omise-woocommerce/pull/373))
+- Fixed guest checkout with pay for order link. (PR [#374](https://github.com/omise/omise-woocommerce/pull/374))
+
+= 5.0.0 =
+
+- Replace credit card form with secure form with a feature flag options to switch between credit card forms. (PR [#354](https://github.com/omise/omise-woocommerce/pull/354))
+- Added an admin notice to notify the user to update the current credit card form to embedded form. (PR [#358](https://github.com/omise/omise-woocommerce/pull/358))
+- Track the adoption of the secure form. (PR [#359](https://github.com/omise/omise-woocommerce/pull/359))
+- Removed SCB and KTB internet banking. (PR [#356](https://github.com/omise/omise-woocommerce/pull/356))
+- Bug fix: hanlde Shopeepay cancel payment. (PR [#361](https://github.com/omise/omise-woocommerce/pull/361))
+
+= 4.29.0 =
+
+- Added Krungthai NEXT mobile banking (PR [#347](https://github.com/omise/omise-woocommerce/pull/347))
+
+= 4.28.1 =
+
+- Fix Uncaught Error: Call to a member function getShopeeBackend() on null. (PR [#344](https://github.com/omise/omise-woocommerce/pull/344))
+
+= 4.28.0 =
+
+- Added ShopeePay for Thailand and Singapore. (PR [#339](https://github.com/omise/omise-woocommerce/pull/339))
+- Rebrand Lotus's Bill Payment. (PR [#336](https://github.com/omise/omise-woocommerce/pull/336))
+- Replace ezypay with MBB in installments. (PR [#333](https://github.com/omise/omise-woocommerce/pull/333))
+- Fixed the method to get currency to the correct method. (PR [#338](https://github.com/omise/omise-woocommerce/pull/338))
+- Code Coverage Integration with Sonarcloud. (PR [#337](https://github.com/omise/omise-woocommerce/pull/337))
+- Fix the compatible issue with PHP 7.2 and below. (PR [#342](https://github.com/omise/omise-woocommerce/pull/342))
+
+= 4.27.0 =
+
+- Rebrand Omise to Opn Payments. (PR [#329](https://github.com/omise/omise-woocommerce/pull/329))
+- Update the links from Dashboard v1 to v2. (PR [#330](https://github.com/omise/omise-woocommerce/pull/330))
+- Changed missing text from Omise to Opn Payments. (PR [#331](https://github.com/omise/omise-woocommerce/pull/331))
+
+= 4.26.0 =
+
+- Metadata keys is_omise_payment_resolved added as protected metadata. (PR [#324](https://github.com/omise/omise-woocommerce/pull/324))
+- Fix the issue of customer getting back to checkout page from OTP page. (PR [#323](https://github.com/omise/omise-woocommerce/pull/323))
+- Fixed the credit card form's UI issue with default theme. (PR [#322](https://github.com/omise/omise-woocommerce/pull/322))
+- Added a delay of 0.5 seconds before calling the charge API in callback class so that we can fetch correct charge status. (PR [#321](https://github.com/omise/omise-woocommerce/pull/321))
+- Increased the delay to 2 seconds and added a check for OCBC PAO redirect URL. (PR [#327](https://github.com/omise/omise-woocommerce/pull/327))
+
+= 4.25.0 =
+
+#### 👾 Bug Fixes
+- Fixed the conflict between Omise and other payment gateway (PR [#317](https://github.com/omise/omise-woocommerce/pull/317))
+- Added Validation on FPX and DuitNow checkout to select the bank (PR [#316](https://github.com/omise/omise-woocommerce/pull/316))
+- Fixed customer cannot pay if the omise customer is removed from the API. (PR [#318](https://github.com/omise/omise-woocommerce/pull/318))
+- Fixed Promptpay QR image format error on KPlus Android App (PR [#319](https://github.com/omise/omise-woocommerce/pull/319))
+
+= 4.24.2 =
+
+#### 👾 Bug Fixes
+- Fix the issue of not being able to add new live keys. (PR [#313](https://github.com/omise/omise-woocommerce/pull/313))
+
+= 4.24.1 =
+
+#### 👾 Bug Fixes
+- Fix the issue of user unable to set new keys when their old keys are expired. (PR [#311](https://github.com/omise/omise-woocommerce/pull/311))
+
+= 4.24.0 =
+
+- Added Japanese translation for the error messages. (PR [#301](https://github.com/omise/omise-woocommerce/pull/301))
+- Update latest omise-php. (PR [#297](https://github.com/omise/omise-woocommerce/pull/297))
+
+#### 👾 Bug Fixes
+- Billing address details are removed from the POST data when creating card token. (PR [#304](https://github.com/omise/omise-woocommerce/pull/304))
+- Updated Omise_Capabilities class to prevent calling capabilities API when the keys are null. (PR [#305](https://github.com/omise/omise-woocommerce/pull/305))
+- Fix the issue of mobile banking redirect URI not working in Android chrome. (PR [#309](https://github.com/omise/omise-woocommerce/pull/309))
+
+= 4.23.3 =
+
+#### 👾 Bug Fixes
+- Fixing the issue of card payment by reverting v4.23.2. (PR [#299](https://github.com/omise/omise-woocommerce/pull/299))
+
+= 4.23.2 =
+
+#### 👾 Bug Fixes
+- Handle capabilities failed. (PR [#294](https://github.com/omise/omise-woocommerce/pull/294))
+
+= 4.23.1 =
+
+#### 👾 Bug Fixes
+- Fixed issue of page broken when activate plugin version 4.23.0 (PR [#293](https://github.com/omise/omise-woocommerce/pull/293))
+
+= 4.23.0 =
+
+#### 🚀 Enhancements
+- Added Boost, DuitNow QR, DuitNow Online Banking/Wallets, Maybank QRPay and ShopeePay payment methods. Update Touch 'n Go to support non Alipay+. (PR [#287](https://github.com/omise/omise-woocommerce/pull/287))
+
+= 4.22.0 =
+
+#### 🚀 Enhancements
+- Allow GrabPay payment in Thailand (PR [#282](https://github.com/omise/omise-woocommerce/pull/282))
+
+#### 👾 Bug Fixes
+- Fix the issue of order status changing to failed when user tries to capture a charge that's already been captured. (PR [#281](https://github.com/omise/omise-woocommerce/pull/281))
+
+= 4.21.1 =
+
+#### 👾 Bug Fixes
+- Fixed the issue of creating GooglePay live mode payments (PR [#280](https://github.com/omise/omise-woocommerce/pull/280))
+
+= 4.21.0 =
+
+#### 🚀 Enhancements
+- Added GooglePay payment method (PR [#278](https://github.com/omise/omise-woocommerce/pull/278))
+
+= 4.20.1 =
+
+#### 🚀 Enhancements
+- Update FPX logo, banklist and terms & condition (PR [#275](https://github.com/omise/omise-woocommerce/pull/275))
+- Update assets Bank of China Logo for FPX (PR [#274](https://github.com/omise/omise-woocommerce/pull/274))
+
+= 4.20 =
+
+#### 🚀 Enhancements
+- Added GrabPay payment method (PR [#270](https://github.com/omise/omise-woocommerce/pull/270))
+
+= 4.19.3 =
+
+#### 🚀 Enhancements
+- Move OCBC Pay Anyone out of Mobile Banking (PR [#265](https://github.com/omise/omise-woocommerce/pull/265))
+
+= 4.19.2 =
+
+#### 👾 Bug Fixes
+- Fixed the issue of cannot go to order confimation page after pay with OCBC Pay Anyone. (PR [#262](https://github.com/omise/omise-woocommerce/pull/262))
+
+= 4.19.1 =
+
+#### 🚀 Bug Fixes
+- Fixed the issue of description set for Installment and TrueMoney wallet not displayed in the checkout page. (PR [#260](https://github.com/omise/omise-woocommerce/pull/260))
+
+= 4.19 =
+
+#### 🚀 Enhancements
+- Update assets for mobile banking logos (PR [#257](https://github.com/omise/omise-woocommerce/pull/257))
+
+#### 👾 Bug Fixes
+- Fix issue with Rabbit LINE Pay being incompabible with older PHP versions (PR [#256](https://github.com/omise/omise-woocommerce/pull/256))
+
+= 4.18 =
+
+#### 🚀 Enhancements
+- Add support for BBL Mobile Banking and BAY Mobile Banking (PR [#252](https://github.com/omise/omise-woocommerce/pull/252))
+
+= 4.17.1 =
+
+#### 👾 Bug Fixes
+- Fix issue Mobile Banking and Rabbit LINE Pay not showing.
+
+= 4.17 =
+
+#### 🚀 Enhancements
+- Add support for KBank Mobile Banking and SCB Mobile Banking (PR [#246](https://github.com/omise/omise-woocommerce/pull/246))
+- Add support for Rabbit LINE Pay (PR [#248](https://github.com/omise/omise-woocommerce/pull/248))
+
+#### 👾 Bug Fixes
+- Fix issue where capture button is still showing after payment is already captured
+- Fix issue where mobile banking payment options is display when checkout currency not supported (PR [#249](https://github.com/omise/omise-woocommerce/pull/249))
+
+= 4.16.2 =
+
+#### 👾 Bug Fixes
+- Fix authentication issue
+
+= 4.16.1 =
+
+#### 👾 Bug Fixes
+- Fix issue where place order button is not working correctly
 
 = 4.16 =
 

@@ -6,7 +6,7 @@ if ( ! class_exists( 'Omise_Util' ) ) {
 		/**
 		 * Renders php template
 		 * @param string $viewPath
-		 * @param Array $viewData
+		 * @param array $viewData
 		 */
 		public static function render_view( $viewPath, $viewData ) {
 			require_once( plugin_dir_path( __FILE__ ) . $viewPath );
@@ -28,13 +28,25 @@ if ( ! class_exists( 'Omise_Util' ) ) {
 			if ( preg_match( "/(Android)/i", $userAgent ) ) {
 				return "ANDROID";
 			}
-			
+
 			if ( preg_match( "/(iPad|iPhone|iPod)/i", $userAgent ) ) {
 				return 'IOS';
 			}
 
 			return null;
 		}
+
+		/**
+		 * Check if current platform is mobile or not
+		 */
+		public static function isMobilePlatform()
+		{
+			return null !== self::get_platform_type(wc_get_user_agent());
+		}
+
+		public static function get_webhook_url()
+		{
+			return get_rest_url( null, 'omise/webhooks' );
+		}
 	}
 }
-?>
